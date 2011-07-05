@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------
 --
--- Copyright (c) 2010 Clement Farabet
+-- Copyright (c) 2011 Clement Farabet
 -- 
 -- Permission is hereby granted, free of charge, to any person obtaining
 -- a copy of this software and associated documentation files (the
@@ -27,7 +27,7 @@
 --              within Lua.
 --
 -- history: 
---     March 27, 2011, 9:58PM - creation
+--     March 27, 2011, 9:58PM - creation - Clement Farabet
 ----------------------------------------------------------------------
 
 require 'os'
@@ -47,6 +47,7 @@ local debug = debug
 local select = select
 local string = string
 local package = package
+local pcall = pcall
 module('inline')
 
 ----------------------------------------------------------------------
@@ -346,7 +347,7 @@ function load (code,exec)
          io.write(debug)
          print(c.red .. 'from GCC:')
          print(msgs .. c.none)
-         xerror('could not compile given code', 'inline.load')
+         error('<inline.load> could not compile given code')
       else
          if msgs ~= '' then print(msgs .. c.none) end
       end
@@ -355,7 +356,16 @@ function load (code,exec)
    -- load shared lib
    local saved_cpath = package.cpath
    package.cpath = _make_path_..sys.dirname(libname)..'/?.so'
-   local loadedlib = require(sys.basename(libname):gsub('.so',''))
+   local loadedlib
+   local ok,msg = pcall(function()
+                              loadedlib = require(sys.basename(libname):gsub('.so',''))
+                           end)
+   if not ok then
+      local faulty_lib = sys.concat(_make_path_..sys.dirname(libname), sys.basename(libname))
+      sys.execute('rm "' .. faulty_lib .. '"')
+      print(c.Red..'<inline.load> corrupted library [trying to clean it up, please try again]'..c.none)
+      os.exit()
+   end
    package.cpath = saved_cpath
 
    -- register function for future use
