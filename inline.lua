@@ -123,7 +123,13 @@ end
 function default_includepaths ()
    _make_includepath_ = ''
    current_includepaths = {}
-   includepaths(sys.prefix .. '/include','/usr/local/include','/usr/include','/opt/local/include')
+   includepaths(sys.prefix .. '/include','/usr/local/include','/usr/include')
+   if sys.dirp('/opt/local/include') then
+      includepaths('/opt/local/include')
+   end
+   if sys.dirp('/sw/include') then
+      includepaths('/sw/include')
+   end
 end
 
 current_headers = {}
@@ -179,7 +185,13 @@ end
 function default_libpaths ()
    _make_libpath_ = '' 
    current_libpaths = {}
-   libpaths(sys.prefix .. '/lib','/usr/local/lib','/usr/lib','/opt/local/lib')
+   libpaths(sys.prefix .. '/lib','/usr/local/lib','/usr/lib')
+   if sys.dirp('/opt/local/lib') then
+      libpaths('/opt/local/lib')
+   end
+   if sys.dirp('/sw/lib') then
+      libpaths('/sw/lib')
+   end
 end
 
 current_libs = {}
