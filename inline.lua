@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------
 --
--- Copyright (c) 2011 Clement Farabet
+-- Copyright (c) 2011 Clement Farabet, Marco Scoffier
 -- 
 -- Permission is hereby granted, free of charge, to any person obtaining
 -- a copy of this software and associated documentation files (the
@@ -27,6 +27,7 @@
 --              within Lua.
 --
 -- history: 
+--     July 26, 2011, 8:18PM  - path bug - Clement Farabet
 --     March 27, 2011, 9:58PM - creation - Clement Farabet
 ----------------------------------------------------------------------
 
