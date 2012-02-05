@@ -34,12 +34,14 @@
 require 'os'
 require 'io'
 require 'sys'
+require 'paths'
 
 local _G = _G
 local print = print
 local error = error
 local require = require
 local sys = sys
+local paths = paths
 local os = os
 local io = io
 local pairs = pairs
@@ -99,7 +101,7 @@ _make_c_ = 'gcc '
 _make_flags_ = ''
 
 -- paths
-_make_path_ = sys.concat(os.getenv('HOME'), '.luamake')
+_make_path_ = paths.concat(os.getenv('HOME'), '.torch', 'inline')
 _make_includepath_ = ''
 _make_libpath_ = '' 
 _make_libs_ = ''
@@ -124,11 +126,11 @@ end
 function default_includepaths ()
    _make_includepath_ = ''
    current_includepaths = {}
-   includepaths(sys.prefix .. '/include','/usr/local/include','/usr/include')
-   if sys.dirp('/opt/local/include') then
+   includepaths(paths.install_include,'/usr/local/include','/usr/include')
+   if paths.dirp('/opt/local/include') then
       includepaths('/opt/local/include')
    end
-   if sys.dirp('/sw/include') then
+   if paths.dirp('/sw/include') then
       includepaths('/sw/include')
    end
 end
@@ -186,11 +188,11 @@ end
 function default_libpaths ()
    _make_libpath_ = '' 
    current_libpaths = {}
-   libpaths(sys.prefix .. '/lib','/usr/local/lib','/usr/lib')
-   if sys.dirp('/opt/local/lib') then
+   libpaths(paths.install_lib,'/usr/local/lib','/usr/lib')
+   if paths.dirp('/opt/local/lib') then
       libpaths('/opt/local/lib')
    end
-   if sys.dirp('/sw/lib') then
+   if paths.dirp('/sw/lib') then
       libpaths('/sw/lib')
    end
 end
@@ -209,7 +211,7 @@ end
 function default_libs()
    _make_libs_ = ''
    current_libs = {}
-   libs('lua','luaT','TH')
+   libs('torch-lua','luaT','TH')
 end
 
 current_flags = {}
@@ -276,13 +278,13 @@ function load (code,exec)
    local modtime = sys.fstat(source_path)
 
    -- lib/src unique names
-   if not sys.filep(source_path) then -- this call is from the lua shell
+   if not paths.filep(source_path) then -- this call is from the lua shell
       ref = 'fromshell'
       shell = true
    end
-   local funcname = sys.basename(upath)
+   local funcname = paths.basename(upath)
    local filename = upath .. '.c'
-   local libname = sys.concat(sys.dirname(upath), 'lib' .. sys.basename(upath) .. '.so')
+   local libname = paths.concat(paths.dirname(upath), 'lib' .. paths.basename(upath) .. '.so')
 
    -- check existence of library
    local buildme = true
@@ -321,7 +323,7 @@ function load (code,exec)
 	 _template_c_:gsub('#FUNCNAME#',funcname)
       parsed = parsed:gsub('#BODY#', code)
      
-      local compile_dir = _make_path_..sys.dirname(filename)
+      local compile_dir = _make_path_..paths.dirname(filename)
       -- write file to disk
       sys.execute(_mkdir_ .. compile_dir)
       local f = io.open(_make_path_..filename, 'w')
@@ -330,14 +332,14 @@ function load (code,exec)
       
       -- copy any local headers to the compilation dir
       for vlh in  pairs(current_localheaders) do 
-	 sys.execute('cp '..sys.dirname(filename)..'/'..vlh..' '..
+         sys.execute('cp '..sys.dirname(filename)..'/'..vlh..' '..
 		   compile_dir)
       end      	 
 
       local gcc_str = _make_c_ .. _make_flags_ .. 
-	 '-o ' .. sys.basename(libname) .. _make_includepath_  ..
+	 '-o ' .. paths.basename(libname) .. _make_includepath_  ..
          _make_libpath_ .. _make_libs_ ..
-         ' ' .. sys.basename(filename)
+         ' ' .. paths.basename(filename)
 
       if verbose then
 	 print(c.blue .. compile_dir.. c.none)
@@ -368,13 +370,13 @@ function load (code,exec)
 
    -- load shared lib
    local saved_cpath = package.cpath
-   package.cpath = _make_path_..sys.dirname(libname)..'/?.so'
+   package.cpath = _make_path_..paths.dirname(libname)..'/?.so'
    local loadedlib
    local ok,msg = pcall(function()
-                              loadedlib = require(sys.basename(libname):gsub('.so',''))
+                              loadedlib = require(paths.basename(libname):gsub('.so',''))
                            end)
    if not ok then
-      local faulty_lib = sys.concat(_make_path_..sys.dirname(libname), sys.basename(libname))
+      local faulty_lib = paths.concat(_make_path_..paths.dirname(libname), paths.basename(libname))
       sys.execute('rm "' .. faulty_lib .. '"')
       print(c.Red..'<inline.load> corrupted library [trying to clean it up, please try again]'..c.none)
       os.exit()
