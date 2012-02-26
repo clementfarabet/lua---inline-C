@@ -373,15 +373,15 @@ function load (code,exec)
    package.cpath = _make_path_..paths.dirname(libname)..'/?.so'
    local loadedlib
    local ok,msg = pcall(function()
-                              loadedlib = require(paths.basename(libname):gsub('.so',''))
+                              loadedlib = require(paths.basename(libname):gsub('%.so$',''))
                            end)
+   package.cpath = saved_cpath
    if not ok then
       local faulty_lib = paths.concat(_make_path_..paths.dirname(libname), paths.basename(libname))
       sys.execute('rm "' .. faulty_lib .. '"')
       print(c.Red..'<inline.load> corrupted library [trying to clean it up, please try again]'..c.none)
-      os.exit()
+      error()
    end
-   package.cpath = saved_cpath
 
    -- register function for future use
    if not shell then
