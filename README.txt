@@ -1,9 +1,11 @@
+DEPENDENCIES:
+Torch7 (www.torch.ch)
 
 INSTALL:
-$ luarocks --from=http://data.neuflow.org/lua/rocks install inline
+$ torch-pkg install inline
 
 USE:
-$ lua
+$ torch
 > require 'inline'
 > f = inline.load [[
     prinf("Hello, from C!\n");
@@ -11,7 +13,3 @@ $ lua
 > f()
 Hello, from C!
 >
-
-NOTES:
-the package depends on external packages: 'sys',
-which are automatically installed by Luarocks.
