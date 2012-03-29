@@ -65,7 +65,7 @@ loaded = {}
 _template_c_ = [[
 
 static int #FUNCNAME#_l (lua_State *L) {
-#BODY#
+%s
   return 0;
 }
 
@@ -321,7 +321,7 @@ function load (code,exec)
       -- parse given code
       local parsed = _headers_c_ .. _headers_local_c_ .. 
 	 _template_c_:gsub('#FUNCNAME#',funcname)
-      parsed = parsed:gsub('#BODY#', code)
+      parsed = parsed:format(code)
      
       local compile_dir = _make_path_..paths.dirname(filename)
       -- write file to disk
