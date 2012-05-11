@@ -228,7 +228,7 @@ end
 function default_flags()
    _make_flags_ = ' '
    current_flags = {}
-   flags('-fpic', '-shared')
+   flags('-fpic', '-shared','-O3')
 end
 
 ----------------------------------------------------------------------
