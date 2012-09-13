@@ -325,15 +325,14 @@ function load (code,exec)
      
       local compile_dir = _make_path_..paths.dirname(filename)
       -- write file to disk
-      sys.execute(_mkdir_ .. compile_dir)
+      sys.execute(_mkdir_ .. '"' .. compile_dir .. '"')
       local f = io.open(_make_path_..filename, 'w')
       f:write(parsed)
       f:close()
       
       -- copy any local headers to the compilation dir
       for vlh in  pairs(current_localheaders) do 
-         sys.execute('cp '..sys.dirname(filename)..'/'..vlh..' '..
-		   compile_dir)
+         sys.execute('cp "'..sys.dirname(filename)..'/'..vlh..'" "'..compile_dir..'"')
       end      	 
 
       local gcc_str = _make_c_ .. _make_flags_ .. 
@@ -346,10 +345,10 @@ function load (code,exec)
          print(c.blue .. gcc_str .. c.none)
       end
       -- compile it
-      local msgs = sys.execute('cd '..compile_dir..'; '.. gcc_str)
+      local msgs = sys.execute('cd "'..compile_dir..'"; '.. gcc_str)
       if string.match(msgs,'error') then
          -- cleanup
-         sys.execute(_rmdir_ .. _make_path_..filename)
+         sys.execute(_rmdir_ .. '"' .. _make_path_..filename .. '"')
          print(c.blue)
          local debug = ''
          local itr = 1
@@ -410,7 +409,7 @@ end
 ----------------------------------------------------------------------
 function flush ()
    -- complete cleanup
-   sys.execute(_rmdir_ .. _make_path_)
+   sys.execute(_rmdir_ .. '"' .. _make_path_ .. '"')
 end
 
 ----------------------------------------------------------------------
