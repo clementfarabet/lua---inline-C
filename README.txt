@@ -2,7 +2,7 @@ DEPENDENCIES:
 Torch7 (www.torch.ch)
 
 INSTALL:
-$ torch-pkg install inline
+$ torch-rocks install inline
 
 USE:
 $ torch
